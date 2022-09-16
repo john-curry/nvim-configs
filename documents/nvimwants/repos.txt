@@ -1,0 +1,5 @@
+#https://github.com/feline-nvim/feline.nvim
+https://github.com/rmagatti/auto-session
+https://github.com/natecraddock/sessions.nvim
+https://github.com/natecraddock/workspaces.nvim
+https://github.com/SmiteshP/nvim-navic
