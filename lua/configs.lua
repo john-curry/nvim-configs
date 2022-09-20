@@ -1,5 +1,6 @@
 require('plugins/lines')
 require('plugins/diagnostic')
+require('plugins/myhover')
 require('plugins/lsps')
 require('plugins/term')
 require('plugins/tree')
