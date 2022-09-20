@@ -15,7 +15,7 @@ return require('packer').startup(function(use)
         use 'kristijanhusak/vim-hybrid-material'
         use 'tomasr/molokai'
         use 'NLKNguyen/papercolor-theme'
-        use { "lewis6991/hover.nvim" }
+        use "lewis6991/hover.nvim"
         use 'jacoborus/tender'
         use 'tomasiser/vim-code-dark'
         use 'raphamorim/lucario'

@@ -1,5 +1,4 @@
-require'vim_settings'
-require'keymaps'
+require'vim_settings' require'keymaps'
 require'autocommands'
 require'plugins'
 

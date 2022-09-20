@@ -8,20 +8,18 @@ capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 require"mason".setup()
 require"mason-lspconfig".setup({
         ensure_installed = {
-                --"jedi_language_server",
-                "pyright",
-                "sumneko_lua",
-                "arduino_language_server",
-                "quick_lint_js",
-                "bashls",
-                "jsonls",
+                'pyright',
+                'sumneko_lua',
                 "html",
                 "quick_lint_js",
                 "cssls",
+                "arduino_language_server",
                 "bashls",
+                "jsonls"
         },
         automatic_installation = true,
 })
+
 
 local on_attach = function(_, bufnr)
         -- Enable completion triggered by <c-x><c-o>
@@ -73,19 +71,16 @@ local lsp_flags = {
         debounce_text_changes = 150,
 }
 
-local lspconfig = require('lspconfig')
--- Enable some language servers with the additional completion capabilities offered by nvim-cmp
+local lspconfig = require'lspconfig'
 local servers = {
-        --'jedi_language_server', 
         "html",
         "cssls",
         "quick_lint_js",
         'pyright',
         'sumneko_lua',
         "arduino_language_server",
-        "quick_lint_js" ,
         "bashls",
-        "jsonls" 
+        "jsonls"
 }
 
 for _, lsp in ipairs(servers) do
@@ -219,3 +214,12 @@ require'lspconfig'.sumneko_lua.setup {
                 },
         },
 }
+
+require'lspconfig'.bashls.setup{
+        filetypes = {"sh", "zsh" }
+}
+require"lspconfig".html.setup{}
+require"lspconfig".cssls.setup{}
+require"lspconfig".jsonls.setup{}
+require"lspconfig".quick_lint_js.setup{}
+
