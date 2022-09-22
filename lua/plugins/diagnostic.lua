@@ -1,9 +1,22 @@
 local diag_opts = { noremap=true, silent=false }
 
+local isshown = true
+local function togglediagnoistic()
+        if isshown then
+                vim.diagnostic.hide()
+                isshown = false
+        else
+                vim.diagnostic.show()
+                isshown = true
+        end
+
+end
+
 vim.keymap.set('n', '<space>e', vim.diagnostic.open_float, diag_opts)
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, diag_opts)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, diag_opts)
 vim.keymap.set('n', '<space>q', vim.diagnostic.setloclist, diag_opts)
+vim.keymap.set('n', '<leader>d', togglediagnoistic, diag_opts)
 
 require('trouble').setup{
     position = "bottom", -- position of the list can be: bottom, top, left, right
@@ -42,13 +55,13 @@ require('trouble').setup{
     auto_preview = true, -- automatically preview the location of the diagnostic. <esc> to close preview and go back to last window
     auto_fold = false, -- automatically fold a file trouble list at creation
     auto_jump = {"lsp_definitions"}, -- for the given modes, automatically jump if there is only a single result
-    --signs = {
-    --    -- icons / text used for a diagnostic
-    --    error = "",
-    --    warning = "",
-    --    hint = "",
-    --    information = "",
-    --    other = "﫠"
-    --},
-    --use_diagnostic_signs = false -- enabling this will use the signs defined in your lsp client
+    signs = {
+        -- icons / text used for a diagnostic
+        error = "",
+        warning = "",
+        hint = "",
+        information = "",
+        other = "﫠"
+    },
+    use_diagnostic_signs = true -- enabling this will use the signs defined in your lsp client
 }

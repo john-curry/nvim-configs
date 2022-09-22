@@ -13,7 +13,7 @@ toggleterm.setup({
   start_in_insert = true,
   insert_mappings = false,
   persist_size = true,
-  direction = "horizontal",
+  direction = "float",
   close_on_exit = true,
   shell = vim.o.shell,
   winbar={
@@ -39,3 +39,7 @@ function _G.set_terminal_keymaps()
 end
 --
 vim.cmd('autocmd! TermOpen term://* lua set_terminal_keymaps()')
+
+local diag_opts = { noremap=true, silent=false }
+vim.keymap.set('n', '<leader>tt', ':ToggleTerm direction=float<CR>', diag_opts)
+vim.keymap.set('n', '<leader>th', ':ToggleTerm direction=horizontal<CR>', diag_opts)

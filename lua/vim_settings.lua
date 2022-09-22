@@ -3,6 +3,7 @@ local o = vim.o
 local set = vim.opt
 vim.g.syntax = "on"
 vim.wo.signcolumn = "yes"
+vim.o.showtabline = 2
 o.number = true
 o.hlsearch  = true
 o.incsearch = true

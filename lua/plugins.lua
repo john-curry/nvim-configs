@@ -1,6 +1,20 @@
 vim.cmd [[packadd packer.nvim]]
 return require('packer').startup(function(use)
+        use 'chrisbra/csv.vim'
+        use 'glts/vim-magnum'
+        use 'glts/vim-radical'
+        use 'yegappan/mru'
+        use 'tpope/vim-surround'
+        use 'tpope/vim-repeat'
+        use 'tpope/vim-sensible'
+        use 'tpope/vim-unimpaired'
+        use{ 'crispgm/nvim-tabline' }
         use "folke/tokyonight.nvim"
+        use 'tpope/vim-fugitive'
+        use 'tpope/vim-dotenv'
+        use 'tpope/vim-dadbod'
+        use 'kristijanhusak/vim-dadbod-completion'
+        use 'kristijanhusak/vim-dadbod-ui'
         use 'karb94/neoscroll.nvim'
         use 'jose-elias-alvarez/null-ls.nvim'
         use 'gelguy/wilder.nvim'
@@ -9,7 +23,6 @@ return require('packer').startup(function(use)
         use 'mhinz/vim-startify'
         use 'mfussenegger/nvim-dap'
         use 'rcarriga/nvim-notify'
-        use 'romgrk/barbar.nvim'
         use 'olivertaylor/vacme'
         use 'plan9-for-vimspace/acme-colors'
         use 'kristijanhusak/vim-hybrid-material'
@@ -76,3 +89,7 @@ return require('packer').startup(function(use)
         end
 }
 end)
+        --use 'nanozuki/tabby.nvim'
+        --use 'shougo/neomru.vim'
+        --use 'jmcantrell/vim-virtualenv'
+        --use 'romgrk/barbar.nvim'

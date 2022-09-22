@@ -1,12 +1,25 @@
 local root_dir = function()
         return vim.fn.getcwd()
 end
-
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
+local servers = {
+        "html",
+        "cssls",
+        "quick_lint_js",
+        'pyright',
+        'sumneko_lua',
+        "arduino_language_server",
+        "bashls",
+        "jsonls",
+        --"sqlls",
+        "yamlls",
+}
+
 require"mason".setup()
 require"mason-lspconfig".setup({
+        --ensure_installed=servers,
         ensure_installed = {
                 'pyright',
                 'sumneko_lua',
@@ -15,6 +28,8 @@ require"mason-lspconfig".setup({
                 "cssls",
                 "arduino_language_server",
                 "bashls",
+                --"sqlls",
+                "yamlls",
                 "jsonls"
         },
         automatic_installation = true,
@@ -72,17 +87,6 @@ local lsp_flags = {
 }
 
 local lspconfig = require'lspconfig'
-local servers = {
-        "html",
-        "cssls",
-        "quick_lint_js",
-        'pyright',
-        'sumneko_lua',
-        "arduino_language_server",
-        "bashls",
-        "jsonls"
-}
-
 for _, lsp in ipairs(servers) do
         lspconfig[lsp].setup {
                 on_attach = on_attach,
@@ -94,45 +98,48 @@ end
 local luasnip = require 'luasnip'
 
 -- nvim-cmp setup
-local cmp = require 'cmp'
-cmp.setup {
-        snippet = {
-                expand = function(args)
-                        luasnip.lsp_expand(args.body)
-                end,
-        },
-        mapping = cmp.mapping.preset.insert({
-                ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-                ['<C-f>'] = cmp.mapping.scroll_docs(4),
-                ['<C-Space>'] = cmp.mapping.complete(),
-                ['<CR>'] = cmp.mapping.confirm {
-                        behavior = cmp.ConfirmBehavior.Replace,
-                        select = true,
+local cmp = require'cmp'
+if cmp ~= nil then
+        cmp.setup {
+                snippet = {
+                        expand = function(args)
+                                luasnip.lsp_expand(args.body)
+                        end,
                 },
-                ['<Tab>'] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                                cmp.select_next_item()
-                        elseif luasnip.expand_or_jumpable() then
-                                luasnip.expand_or_jump()
-                        else
-                                fallback()
-                        end
-                end, { 'i', 's' }),
-                ['<S-Tab>'] = cmp.mapping(function(fallback)
-                        if cmp.visible() then
-                                cmp.select_prev_item()
-                        elseif luasnip.jumpable(-1) then
-                                luasnip.jump(-1)
-                        else
-                                fallback()
-                        end
-                end, { 'i', 's' }),
-        }),
-        sources = {
-                { name = 'nvim_lsp' },
-                { name = 'luasnip' },
-        },
-}
+                mapping = cmp.mapping.preset.insert({
+                        ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+                        ['<C-f>'] = cmp.mapping.scroll_docs(4),
+                        ['<C-Space>'] = cmp.mapping.complete(),
+                        ['<CR>'] = cmp.mapping.confirm {
+                                behavior = cmp.ConfirmBehavior.Replace,
+                                select = true,
+                        },
+                        ['<Tab>'] = cmp.mapping(function(fallback)
+                                if cmp.visible() then
+                                        cmp.select_next_item()
+                                elseif luasnip.expand_or_jumpable() then
+                                        luasnip.expand_or_jump()
+                                else
+                                        fallback()
+                                end
+                        end, { 'i', 's' }),
+                        ['<S-Tab>'] = cmp.mapping(function(fallback)
+                                if cmp.visible() then
+                                        cmp.select_prev_item()
+                                elseif luasnip.jumpable(-1) then
+                                        luasnip.jump(-1)
+                                else
+                                        fallback()
+                                end
+                        end, { 'i', 's' }),
+                }),
+                sources = {
+                        { name = 'nvim_lsp' },
+                        { name = 'luasnip' },
+                        { name = 'vim-dadbod-completion' },
+                },
+        }
+end
 
 require"lspconfig".arduino_language_server.setup({
         cmd = {
@@ -222,4 +229,18 @@ require"lspconfig".html.setup{}
 require"lspconfig".cssls.setup{}
 require"lspconfig".jsonls.setup{}
 require"lspconfig".quick_lint_js.setup{}
-
+require"lspconfig".yamlls.setup{}
+--require"lspconfig".sqlls.setup{}
+--require'lspconfig'.sqls.setup{
+--        --cmd = { "/home/johnc/go/bin/sqls", "-config", "/home/johnc/.config/sqls/config.yml" },
+--  settings = {
+--    sqls = {
+--      connections = {
+--        {
+--          driver = 'postgresql',
+--          dataSourceName = 'host=127.0.0.1 port=5432 user=johnc password=fuckmesill7 dbname=nbc sslmode=disable',
+--        },
+--      },
+--    },
+--  },
+--}
