@@ -16,6 +16,7 @@ nnoremap <Leader>ew :e $MYVIMRC<CR>
 nnoremap <Leader>et :tabnew $MYVIMRC<CR>
 nnoremap <Leader>ev :vs $MYVIMRC<CR>
 nnoremap <Leader>p :e ~/.config/nvim/lua/plugins.lua<CR>
+nnoremap <Leader>f :Prettier<CR>
 onoremap in( :<c-u>normal! f(vi(<cr>
 onoremap il( :<c-u>normal! F(vi(<cr>
 onoremap in{ :<c-u>normal! f{vi{<cr>
