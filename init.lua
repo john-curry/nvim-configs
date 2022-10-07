@@ -1,6 +1,8 @@
-require'vim_settings' require'keymaps'
+require'keymaps'
+require'vim_settings'
 require'autocommands'
 require'plugins'
+
 
 vim.cmd('colorscheme hybrid_material')
 vim.cmd("set signcolumn=no")
@@ -12,14 +14,14 @@ require'dressing'.setup()
 require'sessions'.setup()
 require'neoscroll'.setup()
 require'inc_rename'.setup{
-        input_buffer_type = "dressing",
+  input_buffer_type = "dressing",
 }
 
 require('tabline').setup({
-    show_index = true,        -- show tab index
-    show_modify = true,       -- show buffer modification indicator
-    modify_indicator = '[+]', -- modify indicator
-    no_name = '[No name]',    -- no name buffer name
+  show_index = true,        -- show tab index
+  show_modify = true,       -- show buffer modification indicator
+  modify_indicator = '[+]', -- modify indicator
+  no_name = '[No name]',    -- no name buffer name
 })
 
 -- Window.nvim
@@ -33,9 +35,9 @@ local wilder = require('wilder')
 wilder.setup({modes = {':', '/', '?'}})
 wilder.set_option('renderer', wilder.popupmenu_renderer(
 wilder.popupmenu_border_theme({
-        highlighter = wilder.basic_highlighter(),
-        left = {' ', wilder.popupmenu_devicons()},
-        right = {' ', wilder.popupmenu_scrollbar()},
+  highlighter = wilder.basic_highlighter(),
+  left = {' ', wilder.popupmenu_devicons()},
+  right = {' ', wilder.popupmenu_scrollbar()},
 })))
 -- Null-ls
 --local builtins = require('null-ls').builtins
@@ -49,3 +51,4 @@ wilder.popupmenu_border_theme({
 --        },
 --})
 vim.cmd('let g:db_ui_winwidth = 30')
+

@@ -47,7 +47,6 @@ return require('packer').startup(function(use)
         use 'stevearc/dressing.nvim'
         use 'emakman/neovim-latex-previewer'
         use 'arzg/vim-plan9'
-        use 'godlygeek/tabular'
         use 'preservim/vim-markdown'
         use 'feline-nvim/feline.nvim'
         use 'sainnhe/everforest'
@@ -66,6 +65,12 @@ return require('packer').startup(function(use)
         use 'folke/trouble.nvim'
         use 'lervag/vimtex'
         use { "smjonas/inc-rename.nvim" }
+        use({
+                'crispgm/nvim-tabline',
+                config = function()
+                        require('tabline').setup({})
+                end,
+        })
         use {
                 'nvim-telescope/telescope.nvim', tag = '0.1.0',
                 requires = { {'nvim-lua/plenary.nvim'} }
@@ -89,7 +94,7 @@ return require('packer').startup(function(use)
         end
 }
 end)
-        --use 'nanozuki/tabby.nvim'
-        --use 'shougo/neomru.vim'
-        --use 'jmcantrell/vim-virtualenv'
-        --use 'romgrk/barbar.nvim'
+--use 'nanozuki/tabby.nvim'
+--use 'shougo/neomru.vim'
+--use 'jmcantrell/vim-virtualenv'
+--use 'romgrk/barbar.nvim'
