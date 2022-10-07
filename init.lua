@@ -24,7 +24,6 @@ require("tabline").setup({
 	modify_indicator = "[+]", -- modify indicator
 	no_name = "[No name]", -- no name buffer name
 })
-
 -- Window.nvim
 require("windows").setup({})
 require("dapui").setup({})
@@ -63,7 +62,6 @@ require("null-ls").setup({
 
 local prettier = require("prettier")
 local u = require("prettier.utils")
-
 prettier.setup({
 	["null-ls"] = {
 		condition = function()
