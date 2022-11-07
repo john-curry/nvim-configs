@@ -7,9 +7,9 @@ nnoremap <C-j> <C-W>j
 nnoremap <C-k> <C-W>k
 nnoremap <C-l> <C-W>l
 
-nnoremap <Leader>to :NvimTreeOpen<CR>
-nnoremap <Leader>tc :NvimTreeClose<CR>
-nnoremap <Leader>ts :SidebarNvimToggle<CR>
+nnoremap <Leader>to :Neotree toggle<CR>
+nnoremap <Leader>tc :Neotree close<CR>
+nnoremap <Leader>ts :Neotree open<CR>
 
 nnoremap <Leader>s :source $MYVIMRC<CR>
 nnoremap <Leader>ew :e $MYVIMRC<CR>
@@ -25,6 +25,11 @@ nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+nnoremap <leader>ss :SessionsSave .session<cr>
+nnoremap <leader>ls :SessionsLoad .session<cr>
+
+noremap <F12> <Esc>:syntax sync fromstart<CR>
+inoremap <F12> <C-o>:syntax sync fromstart<CR>
 
 noremap <leader>y :YapfFormat<CR>
 vnoremap <leader>y :YapfFormat 'full'<CR>

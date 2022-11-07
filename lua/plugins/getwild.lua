@@ -12,7 +12,7 @@ wilder.set_option('pipeline', {
         end
       end,
       dir_command = {'fd', '-td'},
-      filters = {'cpsm_filter'},
+      filters = { 'fuzzy_filter', 'cpsm_filter' },
     }),
     wilder.substitute_pipeline({
       pipeline = wilder.python_search_pipeline({

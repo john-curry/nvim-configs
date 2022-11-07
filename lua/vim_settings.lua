@@ -16,6 +16,7 @@ o.winminwidth=10
 o.equalalways=false
 set.smartindent = true
 set.autoindent = true
+--set.smarttab = true
 set.tabstop=2
 set.softtabstop=2
 set.shiftwidth=2

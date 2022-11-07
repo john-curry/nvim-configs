@@ -3,94 +3,100 @@ require("keymaps")
 require("autocommands")
 require("plugins")
 
-vim.cmd("colorscheme hybrid_material")
-vim.cmd("set signcolumn=no")
-vim.cmd("setglobal signcolumn=no")
+require("catppuccin").setup {
+  flavour = "macchiato"
+}
 
-require("configs")
+require("copilot").setup()
+require("copilot_cmp").setup()
 
-require("telescope").load_extension("notify")
-require("nvim-gps").setup()
 require("dressing").setup()
+require("configs")
+require("telescope").load_extension("notify")
 require("sessions").setup()
 require("neoscroll").setup()
-require("inc_rename").setup({
-	input_buffer_type = "dressing",
-})
 
-require("tabline").setup({
-	show_index = true, -- show tab index
-	show_modify = true, -- show buffer modification indicator
-	modify_indicator = "[+]", -- modify indicator
-	no_name = "[No name]", -- no name buffer name
-})
--- Window.nvim
 require("windows").setup({})
 require("dapui").setup({})
-require("which-key").setup({
-	plugins = {
-		spelling = {
-			enabled = true,
-		},
-	},
-})
-local augroup = vim.api.nvim_create_augroup("LspFormatting", {})
-require("null-ls").setup({
-	debug = true,
-	sources = {
-		require("null-ls").builtins.formatting.prettier,
-		require("null-ls").builtins.formatting.stylua,
-		require("null-ls").builtins.diagnostics.eslint,
-		require("null-ls").builtins.completion.spell,
-	},
-	-- you can reuse a shared lspconfig on_attach callback here
-	on_attach = function(client, bufnr)
-		if client.supports_method("textDocument/formatting") then
-			vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-			vim.api.nvim_create_autocmd("BufWritePre", {
-				group = augroup,
-				buffer = bufnr,
-				callback = function()
-					-- on 0.8, you should use vim.lsp.buf.format({ bufnr = bufnr }) instead
-					--vim.lsp.buf.formatting_sync()
-					vim.lsp.buf.format({ bufnr = bufnr })
-				end,
-			})
-		end
-	end,
+
+--require("nvim-autopairs").setup {}
+
+local lsp = require('lsp-zero')
+lsp.preset('recommended')
+lsp.configure('sumneko_lua', {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
+    }
+  }
 })
 
-local prettier = require("prettier")
-local u = require("prettier.utils")
-prettier.setup({
-	["null-ls"] = {
-		condition = function()
-			return u.config_exists({
-				-- if `true`, checks `package.json` for `"prettier"` key
-				check_package_json = false,
-			})
-		end,
-		runtime_condition = function(_)
-			-- return false to skip running prettier
-			return true
-		end,
-		timeout = 5000,
-	},
-	bin = "prettier", -- or `'prettierd'` (v0.22+)
-	filetypes = {
-		"css",
-		"graphql",
-		"html",
-		"javascript",
-		"javascriptreact",
-		"json",
-		"less",
-		"markdown",
-		"scss",
-		"typescript",
-		"typescriptreact",
-		"yaml",
-		"vue",
-		"typescript",
-	},
-})
+lsp.on_attach(function(client, bufnr)
+  if client.server_capabilities.documentSymbolProvider then
+    require('nvim-navic').attach(client, bufnr)
+  end
+end)
+
+require("luasnip.loaders.from_snipmate").lazy_load()
+
+lsp.setup()
+local cmp = require("cmp")
+local select_opts = {behavior = cmp.SelectBehavior.Select}
+
+cmp.setup(lsp.defaults.cmp_config({
+    snippet = {
+      expand = function(args)
+        require("luasnip").lsp_expand(args.body)
+      end
+    },
+    sources = {
+     { name = "path" },
+     { name = "buffer", group_index = 3 },
+     { name = "nvim_lsp", group_index = 2 },
+     --{ name = "luasnip", group_index = 2 },
+     { name = "copilot", group_index = 1 },
+    },
+    mapping = cmp.mapping.preset.insert({
+      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+      ['<C-f>'] = cmp.mapping.scroll_docs(4),
+      ['<C-Space>'] = cmp.mapping.complete(),
+      ['<C-e>'] = cmp.mapping.abort(),
+      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+      ['<Tab>'] = cmp.mapping(function(fallback)
+        local col = vim.fn.col('.') - 1
+        if cmp.visible() then
+          cmp.select_next_item(select_opts)
+        elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+          fallback()
+        else
+          cmp.complete()
+        end
+      end, {'i', 's'}),
+    }),
+  })
+)
+local colors = require('catppuccin.groups.integrations.ts_rainbow')
+
+require("nvim-treesitter.configs").setup {
+  autotag = {
+    enable = true,
+  },
+  indent  = {
+    enable = true
+  },
+  rainbow = {
+    enable = true,
+    -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+    extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+    max_file_lines = nil, -- Do not enable for files with more than n lines, int
+    color = colors,
+    termcolors = colors -- table of colour name strings
+    -- colors = {}, -- table of hex strings
+  }
+}
+
+require "fidget".setup {}
+
+vim.api.nvim_command "colorscheme catppuccin-macchiato"
