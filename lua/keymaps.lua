@@ -36,4 +36,6 @@ vnoremap <leader>y :YapfFormat 'full'<CR>
 
 nnoremap + :res +5<CR>
 nnoremap _ :res -5<CR>
+
+xnoremap <leader>ve <esc>:'<,'>ToggleTermSendVisualSelection<CR>
 ]]

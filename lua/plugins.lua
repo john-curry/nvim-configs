@@ -1,5 +1,9 @@
 vim.cmd([[packadd packer.nvim]])
 return require("packer").startup(function(use)
+  use "arzg/vim-colors-xcode"
+  use "nanotech/jellybeans.vim"
+  use "nvim-lua/popup.nvim"
+  use 'lambdalisue/suda.vim'
   use 'windwp/nvim-ts-autotag'
   use 'rafamadriz/friendly-snippets'
   --use 'windwp/nvim-autopairs'
@@ -89,7 +93,7 @@ return require("packer").startup(function(use)
     after = "catppuccin",
     config = function()
       require("bufferline").setup {
-        highlights = require("catppuccin.groups.integrations.bufferline").get()
+        --highlights = require("catppuccin.groups.integrations.bufferline").get()
       }
     end
   }
@@ -136,18 +140,18 @@ return require("packer").startup(function(use)
   use("jacoborus/tender")
   use("tomasiser/vim-code-dark")
   use("raphamorim/lucario")
-  use({ "williamboman/mason.nvim" })
   use("nvim-lua/plenary.nvim")
   use("drinks5/nvim-yapf-formater")
   use("natecraddock/sessions.nvim")
   use 'p00f/nvim-ts-rainbow'
   use("natecraddock/workspaces.nvim")
   use("sidebar-nvim/sidebar.nvim")
+  use("neovim/nvim-lspconfig") -- Configurations for Nvim LSP
+  use( "williamboman/mason.nvim" )
   use("williamboman/mason-lspconfig.nvim")
   use("wbthomason/packer.nvim")
   use("nvim-treesitter/nvim-treesitter")
   use('nvim-treesitter/nvim-treesitter-context')
-  use("neovim/nvim-lspconfig") -- Configurations for Nvim LSP
   use("ivanov/vim-ipython")
   use("stevearc/dressing.nvim")
   use("emakman/neovim-latex-previewer")

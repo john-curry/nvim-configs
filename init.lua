@@ -2,10 +2,11 @@ require("vim_settings")
 require("keymaps")
 require("autocommands")
 require("plugins")
+require("plugins/navic")
 
-require("catppuccin").setup {
-  flavour = "macchiato"
-}
+--require("catppuccin").setup {
+--  flavour = "macchiato"
+--}
 
 require("copilot").setup()
 require("copilot_cmp").setup()
@@ -20,9 +21,22 @@ require("windows").setup({})
 require("dapui").setup({})
 
 --require("nvim-autopairs").setup {}
-
+require("mason").setup()
+require("mason-lspconfig").setup()
 local lsp = require('lsp-zero')
 lsp.preset('recommended')
+
+lsp.configure('arduino_language_server', {
+  cmd = {
+    "arduino-language-server",
+    "-cli-config", "/home/johnc/.arduino15/arduino-cli.yaml",
+    "-fqbn", "esp32:esp32:esp32",
+    "-cli",
+    "arduino-cli",
+    "-clangd",
+    "clangd",
+  },
+})
 lsp.configure('sumneko_lua', {
   settings = {
     Lua = {
@@ -77,7 +91,7 @@ cmp.setup(lsp.defaults.cmp_config({
     }),
   })
 )
-local colors = require('catppuccin.groups.integrations.ts_rainbow')
+--local colors = require('catppuccin.groups.integrations.ts_rainbow')
 
 require("nvim-treesitter.configs").setup {
   autotag = {
@@ -91,12 +105,12 @@ require("nvim-treesitter.configs").setup {
     -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
     extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
     max_file_lines = nil, -- Do not enable for files with more than n lines, int
-    color = colors,
-    termcolors = colors -- table of colour name strings
+    --color = colors,
+    --termcolors = colors -- table of colour name strings
     -- colors = {}, -- table of hex strings
   }
 }
 
 require "fidget".setup {}
 
-vim.api.nvim_command "colorscheme catppuccin-macchiato"
+vim.api.nvim_command "colorscheme xcodedarkhc"

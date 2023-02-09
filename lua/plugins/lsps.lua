@@ -148,20 +148,6 @@ if cmp ~= nil then
   })
 end
 
-require("lspconfig").arduino_language_server.setup({
-  cmd = {
-    "arduino-language-server",
-    "-cli-config",
-    "/home/johnc/.arduino15/arduino-cli.yaml",
-    "-fqbn",
-    "esp8266:esp8266:huzzah",
-    "-cli",
-    "arduino-cli",
-    "-clangd",
-    "clangd",
-  },
-})
-
 require("lspconfig").texlab.setup({
   root_dir = root_dir,
   build = {
@@ -381,6 +367,20 @@ lspconfig_configs.volar = {
         schemaRequestService = true,
       },
     },
+  },
+}
+
+lspconfig.arduino_language_server.setup {
+  on_attach = on_attach,
+  capabilities = capabilities,
+  cmd = {
+    "arduino-language-server",
+    "-cli-config", "/home/johnc/.arduino15/arduino-cli.yaml",
+    "-fqbn", "esp32:esp32:esp32",
+    "-cli",
+    "arduino-cli",
+    "-clangd",
+    "clangd",
   },
 }
 
