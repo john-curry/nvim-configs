@@ -1,15 +1,16 @@
+ 
 require("vim_settings")
 require("keymaps")
 require("autocommands")
 require("plugins")
 require("plugins/navic")
-
---require("catppuccin").setup {
---  flavour = "macchiato"
---}
-
-require("copilot").setup()
-require("copilot_cmp").setup()
+require("copilot").setup({
+  suggestion = { enabled = false },
+  panel = { enabled = false },
+})
+require("copilot_cmp").setup({
+  method = "getCompletionsCycling",
+})
 
 require("dressing").setup()
 require("configs")
@@ -59,39 +60,86 @@ lsp.setup()
 local cmp = require("cmp")
 local select_opts = {behavior = cmp.SelectBehavior.Select}
 
+local has_words_before = function()
+  if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
+end
+
+vim.opt.completeopt = {'menuone', 'noselect', 'noinsert', 'preview'}
+-- shortmess is used to avoid excessive messages
+vim.opt.shortmess = vim.opt.shortmess + { c = true}
+local lspkind = require("lspkind")
+vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {fg ="#6CC644"})
 cmp.setup(lsp.defaults.cmp_config({
-    snippet = {
-      expand = function(args)
-        require("luasnip").lsp_expand(args.body)
-      end
+    window = {
+    completion = cmp.config.window.bordered(),
+    documentation = cmp.config.window.bordered(),
     },
-    sources = {
-     { name = "path" },
-     { name = "buffer", group_index = 3 },
-     { name = "nvim_lsp", group_index = 2 },
-     --{ name = "luasnip", group_index = 2 },
-     { name = "copilot", group_index = 1 },
-    },
-    mapping = cmp.mapping.preset.insert({
-      ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.abort(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-      ['<Tab>'] = cmp.mapping(function(fallback)
-        local col = vim.fn.col('.') - 1
-        if cmp.visible() then
-          cmp.select_next_item(select_opts)
-        elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-          fallback()
-        else
-          cmp.complete()
-        end
-      end, {'i', 's'}),
+  snippet = {
+    expand = function(args)
+      require("luasnip").lsp_expand(args.body)
+    end
+  },
+  formatting = {
+    format = lspkind.cmp_format({
+      mode = "symbol_txt",
+      max_width = 70,
+      ellipsis_char = '...',
+      symbol_map = { Copilot = "" },
+      menu = ({
+      buffer = "[Buffer]",
+      nvim_lsp = "[LSP]",
+      luasnip = "[LuaSnip]",
+      path = "[Path]",
+      copilot = "[Copilot]",
+      nvim_lua = "[Lua]",
+      latex_symbols = "[Latex]",
+    })
+    })
+  },
+
+  sources = {
+    { name = "path", group_index = 2},
+    { name = "buffer", group_index = 2 },
+    { name = "nvim_lsp", group_index = 2 },
+    --{ name = "luasnip", group_index = 2 },
+    { name = "copilot", group_index = 2 },
+  },
+
+  mapping = cmp.mapping.preset.insert({
+    ['<C-s>'] = cmp.mapping.complete({ reason = cmp.ContextReason.Auto }),
+    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.abort(),
+    ["<CR>"] = cmp.mapping.confirm({
+      -- this is the important line
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = false,
     }),
-  })
+    ["<Tab>"] = vim.schedule_wrap(function(fallback)
+      local col = vim.fn.col(".") - 1
+      if cmp.visible() and has_words_before() then
+        cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+      elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+        cmp.complete()
+      else
+        fallback()
+      end
+    end),
+    --['<Tab>'] = cmp.mapping(function(fallback)
+    --  if cmp.visible() then
+    --    cmp.select_next_item(select_opts)
+    --  elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+    --    fallback()
+    --  else
+    --    cmp.complete()
+    --  end
+    --end, {'i', 's'}),
+  }),
+})
 )
---local colors = require('catppuccin.groups.integrations.ts_rainbow')
 
 require("nvim-treesitter.configs").setup {
   autotag = {
@@ -110,6 +158,15 @@ require("nvim-treesitter.configs").setup {
     -- colors = {}, -- table of hex strings
   }
 }
+
+require("diaglist").init({
+    -- optional settings
+    -- below are defaults
+    debug = false,
+
+    -- increase for noisy servers
+    debounce_ms = 150,
+})
 
 require "fidget".setup {}
 

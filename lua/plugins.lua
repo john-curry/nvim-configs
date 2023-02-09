@@ -1,15 +1,17 @@
 vim.cmd([[packadd packer.nvim]])
 return require("packer").startup(function(use)
+  use "onsails/lspkind.nvim"
+  use "onsails/diaglist.nvim"
   use "arzg/vim-colors-xcode"
   use "nanotech/jellybeans.vim"
   use "nvim-lua/popup.nvim"
   use 'lambdalisue/suda.vim'
   use 'windwp/nvim-ts-autotag'
   use 'rafamadriz/friendly-snippets'
-  --use 'windwp/nvim-autopairs'
+  use {'windwp/nvim-autopairs'}
   use "hrsh7th/cmp-cmdline"
-  use "hrsh7th/cmp-nvim-lsp-signature-help"
   use 'grvcoelho/vim-javascript-snippets'
+  use "hrsh7th/cmp-path"
   use {
     "garbas/vim-snipmate",
     requires = {
@@ -19,7 +21,19 @@ return require("packer").startup(function(use)
       'honza/vim-snippets'
     }
   }
-  use { "zbirenbaum/copilot-cmp" }
+  use { "zbirenbaum/copilot-cmp",
+    requires = {
+      "hrsh7th/nvim-cmp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "saadparwaiz1/cmp_luasnip",
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-nvim-lua",
+      "L3MON4D3/LuaSnip",
+      "rafamadriz/friendly-snippets",
+      "zbirenbaum/copilot.lua"
+    }
+  }
   use { "zbirenbaum/copilot.lua" }
   --use {
   --  "zbirenbaum/copilot-cmp",
@@ -33,21 +47,20 @@ return require("packer").startup(function(use)
   use {
     'fgheng/winbar.nvim',
     requires = {
-      "catppuccin/nvim",
       "SmiteshP/nvim-navic",
     }
   }
-  use({
-    "glepnir/lspsaga.nvim",
-    branch = "main",
-    config = function()
-      local saga = require("lspsaga")
+  --use({
+  --  "glepnir/lspsaga.nvim",
+  --  branch = "main",
+  --  config = function()
+  --    local saga = require("lspsaga")
 
-      saga.init_lsp_saga({
-        -- your configuration
-      })
-    end,
-  })
+  --    saga.init_lsp_saga({
+  --      -- your configuration
+  --    })
+  --  end,
+  --})
   use {
     "nvim-neo-tree/neo-tree.nvim",
     requires = {
@@ -55,9 +68,6 @@ return require("packer").startup(function(use)
       "kyazdani42/nvim-web-devicons", -- not strictly required, but recommended
       "MunifTanjim/nui.nvim",
     }
-  }
-  use { "catppuccin/nvim",
-    as = "catppuccin"
   }
   use {
     "SmiteshP/nvim-navic",
@@ -90,11 +100,8 @@ return require("packer").startup(function(use)
   use "famiu/nvim-reload"
   use {
     "akinsho/bufferline.nvim",
-    after = "catppuccin",
     config = function()
-      require("bufferline").setup {
-        --highlights = require("catppuccin.groups.integrations.bufferline").get()
-      }
+      require("bufferline").setup { }
     end
   }
   use({ "rcarriga/nvim-dap-ui", requires = { "mfussenegger/nvim-dap" } })
@@ -161,7 +168,6 @@ return require("packer").startup(function(use)
   use {
     "feline-nvim/feline.nvim",
     requires = {
-      "catppuccin/nvim",
       "SmiteshP/nvim-navic",
     }
   }
@@ -172,8 +178,9 @@ return require("packer").startup(function(use)
   use("kyazdani42/nvim-web-devicons")
   use("kevinhwang91/rnvimr")
   use("nvim-lua/completion-nvim")
+  use { "ray-x/cmp-treesitter", }
   use {
-    "hrsh7th/nvim-cmp",
+      "hrsh7th/nvim-cmp",
       wants = { "LuaSnip" },
       requires = {
         "hrsh7th/cmp-buffer",
@@ -195,7 +202,8 @@ return require("packer").startup(function(use)
         "honza/vim-snippets",
       },
   }
-  use("hrsh7th/cmp-nvim-lsp") -- LSP source for nvim-cmp
+  use"hrsh7th/cmp-nvim-lsp" -- LSP source for nvim-cmp
+  use"hrsh7th/cmp-nvim-lsp-signature-help"
   use("saadparwaiz1/cmp_luasnip") -- Snippets source for nvim-cmp
   use("L3MON4D3/LuaSnip")
   use("stevearc/vim-arduino")
