@@ -1,10 +1,5 @@
 local notify = require'notify'
-
 notify.setup{
+  BackgroundColor = "#000000",
   top_down=false,
 }
-
-vim.notify = notify
-local function myprint()
-  vim.notify("Hi!")
-end

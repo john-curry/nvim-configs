@@ -30,6 +30,15 @@ return require('lazy').setup({
   'grvcoelho/vim-javascript-snippets',
   "hrsh7th/cmp-path",
   {
+    'salkin-mada/openscad.nvim',
+    --config = function ()
+    --    require('openscad')
+    --    -- load snippets, note requires
+    --    vim.g.openscad_load_snippets = true
+    --end,
+    dependencies = { 'L3MON4D3/LuaSnip' }
+  },
+  {
     "garbas/vim-snipmate",
     dependencies = {
       'MarcWeber/vim-addon-mw-utils',
@@ -54,7 +63,6 @@ return require('lazy').setup({
   },
   { "zbirenbaum/copilot.lua" },
   'danilamihailov/beacon.nvim',
-  'j-hui/fidget.nvim',
   {
     'fgheng/winbar.nvim',
     dependencies = {
@@ -197,12 +205,18 @@ return require('lazy').setup({
   "saadparwaiz1/cmp_luasnip",
   "L3MON4D3/LuaSnip",
   "stevearc/vim-arduino",
-  "akinsho/toggleterm.nvim",
+  {
+    "akinsho/toggleterm.nvim",
+    dependencies = {
+      "kyazdani42/nvim-web-devicons",
+    }
+  },
   "folke/trouble.nvim",
   "lervag/vimtex",
    "smjonas/inc-rename.nvim" ,
+  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' },
   {
-    "nvim-telescope/telescope.nvim",
+    "nvim-telescope/telescope.nvim", tag = '0.1.1',
     dependencies = { { "nvim-lua/plenary.nvim" } },
   },
   {

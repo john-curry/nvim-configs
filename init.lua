@@ -2,52 +2,42 @@ require("vim_settings")
 require("keymaps")
 require("autocommands")
 require("plugins")
+require'nvim-web-devicons'.setup {}
 require("plugins/navic")
-require("copilot").setup({
-  suggestion = { enabled = false },
-  panel = { enabled = false },
-})
-require("copilot_cmp").setup({
-  method = "getCompletionsCycling",
-})
 
 require("dressing").setup()
 require("configs")
-require("telescope").load_extension("notify")
 require("sessions").setup()
 require("neoscroll").setup()
-require("windows").setup({})
 require("dapui").setup({})
-
 require("nvim-autopairs").setup {}
 require("mason").setup()
 require("mason-lspconfig").setup()
 require("aerial").setup()
 local lsp = require('lsp-zero')
 lsp.preset('recommended')
+lsp.preset('python')
+
+if vim.fn.executable('clangd') == 1 then
+  lsp.preset('clangd')
+
+end
 
 lsp.configure('arduino_language_server', {
   cmd = {
     "arduino-language-server",
     "-cli-config", "/home/johnc/.arduino15/arduino-cli.yaml",
     --"-fqbn", "esp32:esp32:adafruit_feather_esp32s3",
-    --"-fqbn", "esp32:esp32:firebeetle32",
-    "--fqbn", "esp32:esp32:esp32da",
+    "--fqbn", "esp32:esp32:firebeetle32",
+    --"--fqbn", "esp32:esp32:esp32da",
     "--library", "include",
     "-cli", "arduino-cli",
     "-clangd",
     "clangd",
   },
 })
-lsp.configure('sumneko_lua', {
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
-    }
-  }
-})
+
+
 local root_dir = function()
   return vim.fn.getcwd()
 end
@@ -117,20 +107,19 @@ lsp.configure('pyright', {
   },
 })
 
---lsp.configure('clangd', {
---})
+local cmp = require("cmp")
 
---lsp.on_attach(function(client, bufnr)
---  if client.server_capabilities.documentSymbolProvider then
---    require('nvim-navic').attach(client, bufnr)
---  end
---end)
+require("copilot").setup({
+  suggestion = { enabled = false },
+  panel = { enabled = false },
+})
 
-require("luasnip.loaders.from_snipmate").lazy_load()
+require("copilot_cmp").setup({
+  method = "getCompletionsCycling",
+})
 
 lsp.setup()
 
-local cmp = require("cmp")
 local has_words_before = function()
   if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -141,40 +130,64 @@ local lspkind = require("lspkind")
 vim.opt.completeopt = {'menuone', 'noselect', 'noinsert', 'preview'}
 vim.opt.shortmess = vim.opt.shortmess + { c = true}
 vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {fg ="#6CC644"})
+
 cmp.setup(lsp.defaults.cmp_config({
-    window = {
+  window = {
     completion = cmp.config.window.bordered(),
     documentation = cmp.config.window.bordered(),
-    },
+  },
+
   snippet = {
+    -- REQUIRED - you must specify a snippet engine
     expand = function(args)
-      require("luasnip").lsp_expand(args.body)
-    end
+      --vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+      require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
+      -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
+      -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+    end,
   },
   formatting = {
     format = lspkind.cmp_format({
       mode = "symbol_txt",
-      max_width = 70,
+      max_width = 50,
       ellipsis_char = '...',
       symbol_map = { Copilot = "" },
       menu = ({
-      buffer = "[Buffer]",
-      nvim_lsp = "[LSP]",
-      luasnip = "[LuaSnip]",
-      path = "[Path]",
-      copilot = "[Copilot]",
-      nvim_lua = "[Lua]",
-      latex_symbols = "[Latex]",
-    })
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        path = "[Path]",
+        copilot = "[Copilot]",
+        nvim_lua = "[Lua]",
+        latex_symbols = "[Latex]",
+      })
     })
   },
 
   sources = {
-    { name = "path", group_index = 3},
-    { name = "buffer", group_index = 3 },
+    { name = "copilot", group_index = 2 },
     { name = "nvim_lsp", group_index = 2 },
-    --{ name = "luasnip", group_index = 2 },
-    { name = "copilot", group_index = 1 },
+    { name = "path", group_index = 2},
+    { name = "buffer", group_index = 2 },
+  },
+
+  sorting = {
+    priority_weight = 2,
+    comparators = {
+      require("copilot_cmp.comparators").prioritize,
+
+      -- Below is the default comparitor list and order for nvim-cmp
+      cmp.config.compare.offset,
+      -- cmp.config.compare.scopes, --this is commented in nvim-cmp too
+      cmp.config.compare.exact,
+      cmp.config.compare.score,
+      cmp.config.compare.recently_used,
+      cmp.config.compare.locality,
+      cmp.config.compare.kind,
+      cmp.config.compare.sort_text,
+      cmp.config.compare.length,
+      cmp.config.compare.order,
+    },
   },
 
   mapping = cmp.mapping.preset.insert({
@@ -185,7 +198,7 @@ cmp.setup(lsp.defaults.cmp_config({
     ['<C-e>'] = cmp.mapping.abort(),
     ["<CR>"] = cmp.mapping.confirm({
       behavior = cmp.ConfirmBehavior.Replace,
-      select = false,
+      select = true,
     }),
     ["<Tab>"] = vim.schedule_wrap(function(fallback)
       if cmp.visible() and has_words_before() then
@@ -193,16 +206,44 @@ cmp.setup(lsp.defaults.cmp_config({
       else
         fallback()
       end
-    end, {'i', 's'}),
+    end),
+    --['<Tab>'] = cmp.mapping(function(fallback)
+    --  local col = vim.fn.col('.') - 1
+
+    --  if cmp.visible() then
+    --    cmp.select_next_item(select_opts)
+    --  elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+    --    fallback()
+    --  else
+    --    cmp.complete()
+    --  end
+    --end, {'i', 's'}),
+    --["<Tab>"] = vim.schedule_wrap(function(fallback)
+    --  if cmp.visible() and has_words_before() then
+    --    cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+    --  else
+    --    fallback()
+    --  end
+    --end, {'i', 's'}),
   }),
 })
 )
-
+--vim.api.nvim_create_autocmd({ "CursorHoldI", "TextChangedI" }, {
+--  group = vim.api.nvim_create_augroup("cmp_complete_on_space", {}),
+--  callback = function()
+--    local line = vim.api.nvim_get_current_line()
+--    local cursor = vim.api.nvim_win_get_cursor(0)[2]
+--
+--    if string.sub(line, cursor, cursor + 1) == " " then
+--      require("cmp").complete()
+--    end
+--  end,
+--})
 require("nvim-treesitter.configs").setup {
   autotag = {
     enable = true,
   },
- --ensure_installed = { "c", "lua", "python", "arduino", "bash", "cmake", "css", "html", "json", "scss", "typescript"},--, "vue", "latex"},
+  --ensure_installed = { "c", "lua", "python", "arduino", "bash", "cmake", "css", "html", "json", "scss", "typescript"},--, "vue", "latex"},
   indent  = {
     enable = true,
     additional_vim_regex_highlighting = false,
@@ -252,17 +293,19 @@ parser_config.cpp = {
   --filetype = "ino", -- if filetype does not match the parser name
 }
 
-require("diaglist").init({
-    -- optional settings
-    -- below are defaults
-    debug = false,
+--require("diaglist").init({
+--  -- optional settings
+--  -- below are defaults
+--  debug = false,
+--
+--  -- increase for noisy servers
+--  debounce_ms = 150,
+--})
 
-    -- increase for noisy servers
-    debounce_ms = 150,
-})
 
-require "fidget".setup {}
-
+--require "fidget".setup {}
+--require'openscad'.setup {}
+--vim.g.openscad_load_snippets = true
 vim.api.nvim_command "set background=dark"
 vim.api.nvim_command "colorscheme molokai"
-require("flutter-tools").setup{} -- use defaults
+--require("flutter-tools").setup{} -- use defaults
