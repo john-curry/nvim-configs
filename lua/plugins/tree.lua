@@ -21,3 +21,17 @@
 --})
 -- Unless you are still migrating, remove the deprecated commands from v1.x
 vim.cmd([[ let g:neo_tree_remove_legacy_commands = 1 ]])
+require("neo-tree").setup({
+  close_if_last_window = true,
+  popup_border_style = "rounded",
+  enable_git_status = true,
+  enable_diagnostics = true,
+  width = 50,
+  filesystem = {
+    --hijack_netrw_behavior = "open_default",
+    hijack_netrw_behavior = "open_current",
+    use_libuv_file_watcher = true
+  }
+})
+vim.cmd([[nnoremap \ :Neotree reveal<cr>]])
+vim.cmd([[nnoremap <leader>\ :NeoTreeFloatToggle<cr>]])

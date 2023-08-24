@@ -11,6 +11,68 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 return require('lazy').setup({
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      -- add any options here
+    },
+    lazy = false,
+  },
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      -- add any options here
+    },
+    lazy = false,
+  },
+  { "sekke276/dark_flat.nvim" },
+  'christianchiarulli/nvcode-color-schemes.vim',
+  'nvim-treesitter/playground',
+  'sainnhe/sonokai',
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",         -- required
+      "nvim-telescope/telescope.nvim", -- optional
+      "sindrets/diffview.nvim",        -- optionalj
+    },
+    config = true,
+  },
+  "sindrets/diffview.nvim",
+  'MunifTanjim/eslint.nvim',
+  {
+    'edKotinsky/Arduino.nvim',
+    lazy = false,
+    opts = {
+      default_fqbn = "esp32:esp32:esp32da",
+
+      --Path to clangd (all paths must be full)
+      clangd = '/usr/bin/clangd',
+
+      --Path to arduino-cli
+      arduino = '/home/johnc/.local/bin/arduino-cli',
+
+      --Data directory of arduino-cli
+      arduino_config_dir = '/home/johnc/.arduino15',
+
+      --Extra options to arduino-language-server
+      --extra_opts = { ... }
+    }
+  },
+  "smartpde/telescope-recent-files",
+  'knubie/vim-kitty-navigator',
+  "markonm/traces.vim",
+  "p00f/clangd_extensions.nvim",
+  { "tiagovla/scope.nvim" },
+  { 'kvrohit/rasmus.nvim',         lazy = false, priority = 1000 },
+  { 'dasupradyumna/midnight.nvim', lazy = false, priority = 1000 },
+  "nyoom-engineering/oxocarbon.nvim",
+  {
+    "olimorris/onedarkpro.nvim",
+    priority = 1000 -- Ensure it loads first
+  },
+  { 'mg979/vim-visual-multi', branch = 'master' },
+  { 'echasnovski/mini.nvim',  version = false },
   'stevearc/aerial.nvim',
   'vim-scripts/synic.vim',
   'tomasr/molokai',
@@ -19,7 +81,15 @@ return require('lazy').setup({
   ({ 'akinsho/flutter-tools.nvim', dependencies = 'nvim-lua/plenary.nvim' }),
   "onsails/lspkind.nvim",
   "onsails/diaglist.nvim",
-  "arzg/vim-colors-xcode",
+  {
+    "arzg/vim-colors-xcode",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      -- load the colorscheme here
+      --vim.cmd([[colorscheme xcodedarkhc]])
+    end,
+  },
   "nanotech/jellybeans.vim",
   "nvim-lua/popup.nvim",
   'lambdalisue/suda.vim',
@@ -50,7 +120,7 @@ return require('lazy').setup({
   {
     "zbirenbaum/copilot-cmp",
     dependencies = {
-      "hrsh7th/nvim-cmp",
+      { dir = "~/.config/nvim/src/nvim-cmp" },
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
       "saadparwaiz1/cmp_luasnip",
@@ -83,23 +153,41 @@ return require('lazy').setup({
   },
   {
     'VonHeikemen/lsp-zero.nvim',
+    branch = 'v2.x',
     dependencies = {
       { 'neovim/nvim-lspconfig' },
-      { 'williamboman/mason.nvim' },
+      {
+        'williamboman/mason.nvim',
+        build = function()
+          pcall(vim.cmd, "MasonUpdate")
+        end,
+      },
+
       { 'williamboman/mason-lspconfig.nvim' },
-      { 'hrsh7th/nvim-cmp' },
+      { dir = "~/.config/nvim/src/nvim-cmp" },
       { 'hrsh7th/cmp-buffer' },
       { 'hrsh7th/cmp-path' },
       { 'saadparwaiz1/cmp_luasnip' },
       { 'hrsh7th/cmp-nvim-lsp' },
-      { 'hrsh7th/cmp-nvim-lua' },
       { 'L3MON4D3/LuaSnip' },
       { 'rafamadriz/friendly-snippets' },
     }
   },
   "MunifTanjim/prettier.nvim",
   "lukas-reineke/lsp-format.nvim",
-  "folke/which-key.nvim",
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    init = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+    end,
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  },
   "famiu/nvim-reload",
   {
     "akinsho/bufferline.nvim",
@@ -107,7 +195,7 @@ return require('lazy').setup({
       require("bufferline").setup {}
     end
   },
-  { "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap" } },
+  { "rcarriga/nvim-dap-ui",  dependencies = { "mfussenegger/nvim-dap" } },
   "mfussenegger/nvim-dap",
   "romgrk/fzy-lua-native",
   { "dundalek/lazy-lsp.nvim", dependencies = { "neovim/nvim-lspconfig" } },
@@ -115,15 +203,15 @@ return require('lazy').setup({
   "glts/vim-magnum",
   "glts/vim-radical",
   "yegappan/mru",
-  "tpope/vim-surround",
-  "tpope/vim-repeat",
-  "tpope/vim-sensible",
-  "tpope/vim-unimpaired",
+  --"tpope/vim-surround",
+  --"tpope/vim-repeat",
+  --"tpope/vim-sensible",
+  --"tpope/vim-unimpaired",
   { "crispgm/nvim-tabline" },
   "folke/tokyonight.nvim",
-  "tpope/vim-fugitive",
-  "tpope/vim-dotenv",
-  "tpope/vim-dadbod",
+  --"tpope/vim-fugitive",
+  --"tpope/vim-dotenv",
+  --"tpope/vim-dadbod",
   "kristijanhusak/vim-dadbod-completion",
   "kristijanhusak/vim-dadbod-ui",
   "karb94/neoscroll.nvim",
@@ -161,9 +249,9 @@ return require('lazy').setup({
   "williamboman/mason-lspconfig.nvim",
   "nvim-treesitter/nvim-treesitter",
   'nvim-treesitter/nvim-treesitter-context',
-  "ivanov/vim-ipython",
+  --"ivanov/vim-ipython",
   "stevearc/dressing.nvim",
-  "emakman/neovim-latex-previewer",
+  --"emakman/neovim-latex-previewer",
   "arzg/vim-plan9",
   "godlygeek/tabular",
   "preservim/vim-markdown",
@@ -174,15 +262,15 @@ return require('lazy').setup({
     }
   },
   "sainnhe/everforest",
-  "iamcco/markdown-preview.nvim",
-  "junegunn/goyo.vim",
-  "jaredgorski/spacecamp",
+  --"iamcco/markdown-preview.nvim",
+  --"junegunn/goyo.vim",
+  --"jaredgorski/spacecamp",
   "kyazdani42/nvim-web-devicons",
   "kevinhwang91/rnvimr",
   "nvim-lua/completion-nvim",
-   "ray-x/cmp-treesitter" ,
+  "ray-x/cmp-treesitter",
   {
-    "hrsh7th/nvim-cmp",
+    dir = "~/.config/nvim/src/nvim-cmp",
     wants = { "LuaSnip" },
     dependencies = {
       "hrsh7th/cmp-buffer",
@@ -204,7 +292,7 @@ return require('lazy').setup({
   "hrsh7th/cmp-nvim-lsp-signature-help",
   "saadparwaiz1/cmp_luasnip",
   "L3MON4D3/LuaSnip",
-  "stevearc/vim-arduino",
+  --"stevearc/vim-arduino",
   {
     "akinsho/toggleterm.nvim",
     dependencies = {
@@ -212,32 +300,37 @@ return require('lazy').setup({
     }
   },
   "folke/trouble.nvim",
-  "lervag/vimtex",
-   "smjonas/inc-rename.nvim" ,
-  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' },
+  --"lervag/vimtex",
+  "smjonas/inc-rename.nvim",
   {
-    "nvim-telescope/telescope.nvim", tag = '0.1.1',
-    dependencies = { { "nvim-lua/plenary.nvim" } },
+    'nvim-telescope/telescope-fzf-native.nvim',
+    build =
+    'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
   },
   {
-    "anuvyklack/windows.nvim",
-    dependencies = {
-      "anuvyklack/middleclass",
-      "anuvyklack/animation.nvim",
-    },
-    config = function()
-      local function cmd(command)
-        return table.concat({ "<Cmd>", command, "<CR>" })
-      end
+    "nvim-telescope/telescope.nvim",
+    tag = '0.1.1',
+    dependencies = { { "nvim-lua/plenary.nvim" } },
+  },
+  --{
+  --  "anuvyklack/windows.nvim",
+  --  dependencies = {
+  --    "anuvyklack/middleclass",
+  --    "anuvyklack/animation.nvim",
+  --  },
+  --  config = function()
+  --    local function cmd(command)
+  --      return table.concat({ "<Cmd>", command, "<CR>" })
+  --    end
 
-      vim.keymap.set("n", "<leader>z", cmd("WindowsMaximize"))
-      vim.keymap.set("n", "<leader>_", cmd("WindowsMaximizeVertically"))
-      vim.keymap.set("n", "<leader>|", cmd("WindowsMaximizeHorizontally"))
-      vim.keymap.set("n", "<leader>=", cmd("WindowsEqualize"))
-      vim.o.winwidth = 10
-      vim.o.winminwidth = 10
-      vim.o.equalalways = false
-      require("windows").setup()
-    end,
-  }
+  --    vim.keymap.set("n", "<leader>z", cmd("WindowsMaximize"))
+  --    vim.keymap.set("n", "<leader>_", cmd("WindowsMaximizeVertically"))
+  --    vim.keymap.set("n", "<leader>|", cmd("WindowsMaximizeHorizontally"))
+  --    vim.keymap.set("n", "<leader>=", cmd("WindowsEqualize"))
+  --    vim.o.winwidth = 10
+  --    vim.o.winminwidth = 10
+  --    vim.o.equalalways = false
+  --    require("windows").setup()
+  --  end,
+  --}
 })

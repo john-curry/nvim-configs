@@ -2,98 +2,180 @@ require("vim_settings")
 require("keymaps")
 require("autocommands")
 require("plugins")
-require'nvim-web-devicons'.setup {}
+require 'nvim-web-devicons'.setup {}
 require("plugins/navic")
-
 require("dressing").setup()
 require("configs")
 require("sessions").setup()
 require("neoscroll").setup()
 require("dapui").setup({})
-require("nvim-autopairs").setup {}
+require("aerial").setup()
 require("mason").setup()
 require("mason-lspconfig").setup()
-require("aerial").setup()
-local lsp = require('lsp-zero')
-lsp.preset('recommended')
-lsp.preset('python')
+require("lsp-format").setup()
+require('mini.statusline').setup()
+require('mini.tabline').setup()
+require('mini.cursorword').setup()
+require('mini.pairs').setup()
+require('mini.splitjoin').setup()
 
-if vim.fn.executable('clangd') == 1 then
-  lsp.preset('clangd')
+require("scope").setup({})
+require('neogit').setup({
+  integrations = {
+    diffview = true,  -- integrate with vim-diffview
+    telescope = true, -- integrate with telescope.nvim
+  }
 
-end
-
-lsp.configure('arduino_language_server', {
-  cmd = {
-    "arduino-language-server",
-    "-cli-config", "/home/johnc/.arduino15/arduino-cli.yaml",
-    --"-fqbn", "esp32:esp32:adafruit_feather_esp32s3",
-    "--fqbn", "esp32:esp32:firebeetle32",
-    --"--fqbn", "esp32:esp32:esp32da",
-    "--library", "include",
-    "-cli", "arduino-cli",
-    "-clangd",
-    "clangd",
-  },
 })
+require("diffview").setup()
+require('Comment').setup()
+require('mini.colors').setup()
 
+local lsp = require('lsp-zero').preset({})
+lsp.extend_cmp()
+
+lsp.on_attach(function(client, bufnr)
+  lsp.default_keymaps({ buffer = bufnr })
+  require("lsp-format").on_attach(client)
+end)
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 local root_dir = function()
   return vim.fn.getcwd()
 end
 
-local on_attach = function(client, bufnr)
-  require("lsp-format").on_attach(client)
-  -- Enable completion triggered by <c-x><c-o>
-  vim.api.nvim_buf_set_option(bufnr, "omnifunc", "v:lua.vim.lsp.omnifunc")
-  -- Mappings.
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  local bufopts = { noremap = true, silent = true, buffer = bufnr }
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, bufopts)
-  vim.keymap.set("n", "gd", vim.lsp.buf.definition, bufopts)
-  --vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-  vim.keymap.set("n", "K", require("hover").hover, { desc = "hover.nvim" })
-  vim.keymap.set("n", "gK", require("hover").hover_select, { desc = "hover.nvim (select)" })
-  vim.keymap.set("n", "gi", vim.lsp.buf.implementation, bufopts)
-  vim.keymap.set("n", "<space>k", vim.lsp.buf.signature_help, bufopts)
-  vim.keymap.set("n", "<space>wa", vim.lsp.buf.add_workspace_folder, bufopts)
-  vim.keymap.set("n", "<space>wr", vim.lsp.buf.remove_workspace_folder, bufopts)
+lsp.configure('tailwindcss', {
+  root_dir = root_dir,
+  settings = {
+    tailwindCSS = {
+      classAttributes = { "class", "className", "class:list", "classList", "ngClass" },
+      lint = {
+        cssConflict = "warning",
+        invalidApply = "error",
+        invalidConfigPath = "error",
+        invalidScreen = "error",
+        invalidTailwindDirective = "ignore",
+        invalidVariant = "error",
+        recommendedVariantOrder = "warning",
+        unknownAtRules = "ignore",
+      },
+      validate = true
+    }
+  }
+})
+lsp.configure('cssls', {
+  --root_dir = root_dir,
+  capabilities = capabilities,
+  filetypes = { "css", "scss", "less", "sass" },
+  on_attach = function(client, bufnr)
+    --lsp.default_keymaps({ buffer = bufnr })
+    --require("lsp-format").on_attach(client)
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        -- disable virtual text
+        virtual_text = false,
 
-  vim.keymap.set("n", "<space>wl", function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, bufopts)
+        -- show signs
+        signs = true,
 
-  vim.keymap.set("n", "<space>D", vim.lsp.buf.type_definition, bufopts)
-
-  vim.keymap.set("n", "<space>rn", function()
-    return ":IncRename " .. vim.fn.expand("<cword>")
-  end, { expr = true, buffer = bufnr, silent = true, noremap = true })
-
-  vim.keymap.set("n", "<space>ca", vim.lsp.buf.code_action, bufopts)
-  vim.keymap.set("n", "gr", vim.lsp.buf.references, bufopts)
-  vim.keymap.set("n", "<space>f", vim.lsp.buf.formatting, bufopts)
-  vim.api.nvim_create_autocmd("CursorHold", {
-    buffer = bufnr,
-    callback = function()
-      local callopts = {
-        focusable = false,
-        close_events = { "BufLeave", "CursorMoved", "InsertEnter", "FocusLost" },
-        border = "rounded",
-        source = "always",
-        prefix = " ",
-        scope = "cursor",
+        -- delay update diagnostics
+        update_in_insert = false,
       }
-      vim.diagnostic.open_float(nil, callopts)
-    end,
-  })
+    )
+  end,
+  settings = {
+    css = {
+      validate = true,
+      unknownAtRules = 'ignore'
+    },
+    scss = {
+      validate = true,
+      unknownAtRules = 'ignore'
+    },
+    less = {
+      validate = true,
+      unknownAtRules = 'ignore'
+    },
+  }
+})
+local util = require 'lspconfig.util'
+local function get_typescript_server_path(root_dir)
+  local global_ts = '/usr/local/lib/node_modules/vls/node_modules/typescript/lib'
+  -- Alternative location if installed as root:
+  -- local global_ts = '/usr/local/lib/node_modules/typescript/lib'
+  local found_ts = ''
+  local function check_dir(path)
+    found_ts = util.path.join(path, 'node_modules', 'typescript', 'lib')
+    if util.path.exists(found_ts) then
+      return path
+    end
+  end
+  if util.search_ancestors(root_dir, check_dir) then
+    return found_ts
+  else
+    return global_ts
+  end
 end
-local lsp_flags = {
-  -- This is the default in Nvim 0.7+
-  debounce_text_changes = 150,
+
+require('lspconfig').volar.setup({
+  on_new_config = function(new_config, new_root_dir)
+    new_config.init_options.typescript.tsdk = get_typescript_server_path(new_root_dir)
+  end,
+  --root_dir = root_dir,
+  on_attach = function(client, bufnr)
+    lsp.default_keymaps({ buffer = bufnr })
+    require("lsp-format").on_attach(client)
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+      vim.lsp.diagnostic.on_publish_diagnostics, {
+        -- disable virtual text
+        virtual_text = true,
+
+        -- show signs
+        signs = true,
+
+        -- delay update diagnostics
+        update_in_insert = false,
+      }
+    )
+    lsp.default_keymaps({ buffer = bufnr })
+  end,
+  settings = {
+    lint = {
+      unknownAtRules = "ignore",
+    },
+  }
+})
+
+local arduino = require 'arduino'
+require 'lspconfig'['arduino_language_server'].setup {
+  on_new_config = arduino.on_new_config,
 }
+
+lsp.configure('lua_ls', {
+  cmd = { "lua-language-server" },
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },
+      },
+    },
+  },
+})
+
+--lsp.configure('clangd', {
+--  --root_dir = root_dir,
+--  settings = {
+--    cmd = {
+--      'clangd',
+--      "--query-driver='/home/johnc/.espressif/tools/xtensa-esp32-elf/esp-2021r2-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc'",
+--    },
+--    filetypes = { 'c', 'cpp' }
+--  },
+--})
+
 lsp.configure('pyright', {
-  on_attach = on_attach,
-  flags = lsp_flags,
   root_dir = root_dir,
   settings = {
     python = {
@@ -106,8 +188,18 @@ lsp.configure('pyright', {
     },
   },
 })
-
-local cmp = require("cmp")
+lsp.skip_server_setup({ 'clangd' })
+lsp.setup()
+require("clangd_extensions").setup({
+  server = {
+    cmd = {
+      'clangd',
+      '--compile-commands-dir=' .. vim.fn.getcwd() .. '/build',
+      "--query-driver='/home/johnc/.espressif/tools/xtensa-esp32-elf/esp-2021r2-patch5-8.4.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++'",
+    },
+  }
+})
+local cmp = require('cmp')
 
 require("copilot").setup({
   suggestion = { enabled = false },
@@ -118,18 +210,16 @@ require("copilot_cmp").setup({
   method = "getCompletionsCycling",
 })
 
-lsp.setup()
-
 local has_words_before = function()
   if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then return false end
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_text(0, line-1, 0, line-1, col, {})[1]:match("^%s*$") == nil
+  return col ~= 0 and vim.api.nvim_buf_get_text(0, line - 1, 0, line - 1, col, {})[1]:match("^%s*$") == nil
 end
 
 local lspkind = require("lspkind")
-vim.opt.completeopt = {'menuone', 'noselect', 'noinsert', 'preview'}
-vim.opt.shortmess = vim.opt.shortmess + { c = true}
-vim.api.nvim_set_hl(0, "CmpItemKindCopilot", {fg ="#6CC644"})
+vim.opt.completeopt = { 'menuone', 'noselect', 'noinsert', 'preview' }
+vim.opt.shortmess = vim.opt.shortmess + { c = true }
+vim.api.nvim_set_hl(0, "CmpItemKindCopilot", { fg = "#6CC644" })
 
 cmp.setup(lsp.defaults.cmp_config({
   window = {
@@ -149,7 +239,7 @@ cmp.setup(lsp.defaults.cmp_config({
   formatting = {
     format = lspkind.cmp_format({
       mode = "symbol_txt",
-      max_width = 50,
+      max_width = 100,
       ellipsis_char = '...',
       symbol_map = { Copilot = "" },
       menu = ({
@@ -165,10 +255,10 @@ cmp.setup(lsp.defaults.cmp_config({
   },
 
   sources = {
-    { name = "copilot", group_index = 2 },
+    { name = "copilot",  group_index = 2 },
     { name = "nvim_lsp", group_index = 2 },
-    { name = "path", group_index = 2},
-    { name = "buffer", group_index = 2 },
+    { name = "path",     group_index = 2 },
+    { name = "buffer",   group_index = 2 },
   },
 
   sorting = {
@@ -207,45 +297,61 @@ cmp.setup(lsp.defaults.cmp_config({
         fallback()
       end
     end),
-    --['<Tab>'] = cmp.mapping(function(fallback)
-    --  local col = vim.fn.col('.') - 1
-
-    --  if cmp.visible() then
-    --    cmp.select_next_item(select_opts)
-    --  elseif col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
-    --    fallback()
-    --  else
-    --    cmp.complete()
-    --  end
-    --end, {'i', 's'}),
-    --["<Tab>"] = vim.schedule_wrap(function(fallback)
-    --  if cmp.visible() and has_words_before() then
-    --    cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-    --  else
-    --    fallback()
-    --  end
-    --end, {'i', 's'}),
   }),
 })
 )
---vim.api.nvim_create_autocmd({ "CursorHoldI", "TextChangedI" }, {
---  group = vim.api.nvim_create_augroup("cmp_complete_on_space", {}),
---  callback = function()
---    local line = vim.api.nvim_get_current_line()
---    local cursor = vim.api.nvim_win_get_cursor(0)[2]
+
+local wk = require('which-key')
 --
---    if string.sub(line, cursor, cursor + 1) == " " then
---      require("cmp").complete()
---    end
---  end,
+--local lsp_flags = {
+--  -- This is the default in Nvim 0.7+
+--  debounce_text_changes = 150,
+--}
+--
+--lsp.configure('pyright', {
+--  on_attach = on_attach,
+--  flags = lsp_flags,
+--  root_dir = root_dir,
+--  settings = {
+--    python = {
+--      analysis = {
+--        autoSearchPaths = true,
+--        pythonPath = "/usr/bin/python3.8",
+--        diagnosticMode = "workspace",
+--        useLibraryCodeForTypes = false,
+--      },
+--    },
+--  },
 --})
+--
+--lsp.setup()
+--
+--local cmp = require("cmp")
+--
 require("nvim-treesitter.configs").setup {
-  autotag = {
+  playground            = {
+    enable = true,
+    disable = {},
+    updatetime = 25,         -- Debounced time for highlighting nodes in the playground from source code
+    persist_queries = false, -- Whether the query persists across vim sessions
+    keybindings = {
+      toggle_query_editor = 'o',
+      toggle_hl_groups = 'i',
+      toggle_injected_languages = 't',
+      toggle_anonymous_nodes = 'a',
+      toggle_language_display = 'I',
+      focus_language = 'f',
+      unfocus_language = 'F',
+      update = 'R',
+      goto_node = '<cr>',
+      show_help = '?',
+    },
+  },
+  autotag               = {
     enable = true,
   },
-  --ensure_installed = { "c", "lua", "python", "arduino", "bash", "cmake", "css", "html", "json", "scss", "typescript"},--, "vue", "latex"},
-  indent  = {
-    enable = true,
+  indent                = {
+    enable = false,
     additional_vim_regex_highlighting = false,
   },
   incremental_selection = {
@@ -257,7 +363,7 @@ require("nvim-treesitter.configs").setup {
       node_decremental = "grm",
     },
   },
-  rainbow = {
+  rainbow               = {
     enable = true,
     -- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
     extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
@@ -265,47 +371,56 @@ require("nvim-treesitter.configs").setup {
     --color = colors,
     --termcolors = colors -- table of colour name strings
     -- colors = {}, -- table of hex strings
-  }
-}
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.arduino = {
-  install_info = {
-
-    url = "~/src/tree-sitter-arduino", -- local path or git repo
-    files = {"src/parser.c"}, -- note that some parsers also require src/scanner.c or src/scanner.cc
-    -- optional entries:
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = true, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
   },
-  filetype = "ino", -- if filetype does not match the parser name
-}
-parser_config.cpp = {
-  install_info = {
-
-    url = "~/src/tree-sitter-cpp", -- local path or git repo
-    files = {"src/parser.c"}, -- note that some parsers also require src/scanner.c or src/scanner.cc
-    -- optional entries:
-    branch = "main", -- default branch in case of git repo if different from master
-    generate_requires_npm = true, -- if stand-alone parser without npm dependencies
-    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-  }
-  --filetype = "ino", -- if filetype does not match the parser name
+  highlight             = {
+    ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+    enable = true,
+    additional_vim_regex_highlighting = false,
+    disable = { "vue", "javascript" }
+  },
+  context_commentstring = {
+    enable = true,
+  },
 }
 
---require("diaglist").init({
---  -- optional settings
---  -- below are defaults
---  debug = false,
+--vim.treesitter.language.register('typescript', 'javascript')
+--local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+--parser_config.arduino = {
+--  install_info = {
 --
---  -- increase for noisy servers
---  debounce_ms = 150,
---})
-
-
---require "fidget".setup {}
---require'openscad'.setup {}
---vim.g.openscad_load_snippets = true
-vim.api.nvim_command "set background=dark"
-vim.api.nvim_command "colorscheme molokai"
---require("flutter-tools").setup{} -- use defaults
+--    url = "~/src/tree-sitter-arduino",      -- local path or git repo
+--    files = { "src/parser.c" },             -- note that some parsers also require src/scanner.c or src/scanner.cc
+--    -- optional entries:
+--    branch = "main",                        -- default branch in case of git repo if different from master
+--    generate_requires_npm = true,           -- if stand-alone parser without npm dependencies
+--    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+--  },
+--  filetype = "ino",                         -- if filetype does not match the parser name
+--}
+--parser_config.cpp = {
+--  install_info = {
+--
+--    url = "~/src/tree-sitter-cpp",          -- local path or git repo
+--    files = { "src/parser.c" },             -- note that some parsers also require src/scanner.c or src/scanner.cc
+--    -- optional entries:
+--    branch = "main",                        -- default branch in case of git repo if different from master
+--    generate_requires_npm = true,           -- if stand-alone parser without npm dependencies
+--    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+--  },
+--  filetype = { "ino", "cpp", "hpp" },       -- if filetype does not match the parser name
+--}
+--parser_config.c = {
+--  install_info = {
+--
+--    url = "~/src/tree-sitter-c",            -- local path or git repo
+--    files = { "src/parser.c" },             -- note that some parsers also require src/scanner.c or src/scanner.cc
+--    -- optional entries:
+--    branch = "main",                        -- default branch in case of git repo if different from master
+--    generate_requires_npm = true,           -- if stand-alone parser without npm dependencies
+--    requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
+--  },
+--  filetype = { "c", "h" },                  -- if filetype does not match the parser name
+--}
+-- bind printhl to <c-e> in normal mode
+vim.keymap.set('n', '<C-e>', ":TSHighlightCapturesUnderCursor<CR>", { silent = false })
+vim.cmd [[colo xcodedarkhc2]]
